@@ -51,34 +51,34 @@ int main (int argc, char **argv) {
 	while ( strncmp(temp,"::",MAX_LEN_EXCLUSION_WORD)!=0 && i< MAX_NUM_EXCLUSION_WORDS) {
 		strncpy(exclusionWords[i], temp , MAX_LEN_EXCLUSION_WORD);
 		scanf("%s",temp);
-		//printf("The string is: %s", temp);		
 		i++;
 	};// while ( strncmp(temp,"::",MAX_LEN_EXCLUSION_WORD)!=0 && i< MAX_NUM_EXCLUSION_WORDS) ;
-	//printf("The string is: %s\n", exclusionWords[0]);
 	/*Scan the lines to be indexed into the program */
 	/*Tokenize the strings in lines to be indexed*/
 	getchar();/*This function gets rid of the new line whitespace*/
 	i = 0;
 	int k; /* position in word*/
-	int l; /* word number     */	
-	while ( scanf("%[^\n]",temp)==1 &&  i < MAX_NUM_TO_BE_INDEXED) {
+	int l; /* word number     */
+	while ( scanf("%[^\n]",temp)>=0 &&  i < MAX_NUM_TO_BE_INDEXED) {
 		/*Temp is now the line.  Use scanf to split it into words*/
 		length = strlen(temp);
-		k=0;
-		l=0;
-		for (int j =0; j<length;j++){
-			if (temp[j]!=' '){			
-				lines2BIndexed[i][l][k] = temp[j];
-				k++;
-			} else {
-				l++;
-				k = 0;
+		if (strncmp(temp,"::",MAX_LEN_EXCLUSION_WORD)!=0){ 
+			k=0;
+			l=0;
+			for (int j =0; j<length;j++){
+				if (temp[j]!=' '){			
+					lines2BIndexed[i][l][k] = temp[j];
+					k++;
+				} else {
+					l++;
+					k = 0;
+				};
 			};
+			i++;		
 		};
 		getchar();
-		i++;
+		
 	};
-	//printf("The string is: %s\n", lines2BIndexed[0][0]);
 	/*This array returns the next word we want indexed and printed*/
 	int *wordToBeIndexed; 	
 	
@@ -88,9 +88,7 @@ int main (int argc, char **argv) {
 	/*Run this to find the last index word to be printed
 	(will be needed for smallest word funtion to work properly) */
 	lastWordToBeIndexed = lastWord();
-	//printf("The coords of the last real word are: %i, and %i\n", lastWordToBeIndexed[0], lastWordToBeIndexed[1]);
 	
-	//printf("The coords of the frist real word are: %i, and %i\n", indexOfFirstReal[0], indexOfFirstReal[0]);
 	/*Now loop, always finding the next smallest index word, then print line.
 	Terminate when no word is found less than prev word. */
 	do {
@@ -159,7 +157,6 @@ int wordExcl(int line, int word){
 			returnInt = 1;
 			break;
 		};			
-		//printf("This was in the array %s \n", exclusionWords[i]);		
 		i++;
 	};	
 	return returnInt;
@@ -185,12 +182,8 @@ int * smallestWord(int linePrev, int wordPrev){
 				/*Check that the word isn't excluded*/
 				/*No word indexed yet*/		
 				//test to figure out why rich isn't counted in test 8			
-//				printf("The linePrev was -1\n");				
-//				printf("The word being checked is: %s\n", lines2BIndexed[i][l]); 				
-								
-				
-				if ( (wordExcl(i, l) != 1) & (isWordLow(test[0], test[1], i, l) > 0) ){
-//					printf("The earliest non indexed word is: %s\n", lines2BIndexed[i][l]); 						
+			
+				if ( (wordExcl(i, l) != 1) & (isWordLow(test[0], test[1], i, l) > 0) ){						
 					test[0] = i;
 					test[1] = l;
 					test[2] = 1;
@@ -209,16 +202,11 @@ int * smallestWord(int linePrev, int wordPrev){
 			while (lines2BIndexed[i][l][0]){
 				/*Check that the word isn't excluded*/
 				/*Find the earliest word not yet indexed*/
-				/*Check that the new word is ahead of the previous one indexed*/		
-				
-				//test to figure out why rich isn't counted in test 8			
-//				printf("The word being checked is: %s\n", lines2BIndexed[i][l]); 				
-				
+				/*Check that the new word is ahead of the previous one indexed*/				
 				if (  (wordExcl(i, l) != 1) 
 				& (isWordLow(linePrev, wordPrev, i, l) < 0) 
 				& (isWordLow(test[0], test[1], i, l) > 0)  
-				){
-//					printf("The earliest non indexed word is: %s\n", lines2BIndexed[i][l]); 												
+				){ 												
 						test[0] = i;
 						test[1] = l;
 						test[2] = 1;
@@ -228,9 +216,7 @@ int * smallestWord(int linePrev, int wordPrev){
 			i++;
 		};
 
-	}
-
-//	printf("THE NEXT WORD TO BE INDEXED IS : %s\n", lines2BIndexed[test[0]][test[1]]); 	
+	};
 	return test;
 }
 
@@ -245,8 +231,7 @@ int * firstRealWord(){
 	while (lines2BIndexed[i][0][0]) {
 		l=0;
 		while (lines2BIndexed[i][l][0]){
-			/*Check that the word isn't excluded*/
-			//printf("This was reached\n");			
+			/*Check that the word isn't excluded*/	
 			if (wordExcl(i, l) != 1){
 				ret[0]=i;
 				ret[1]=l;
@@ -256,7 +241,6 @@ int * firstRealWord(){
 		};
 		i++;
 	};
-	//printf("The coords of the frist real word are: %i, and %i", ret[0], ret[0]);
 	exitLoop: return ret;
 
 }
@@ -290,8 +274,6 @@ int * lastWord(){
 			if (wordExcl(i, l) != 1 && isWordLow(i,l,testi, testl) > 0 ){
 				testi=i;
 				testl=l;
-	//printf("The coords of the last word are now: %i, and %i\n", testi, testl);
-				
 			};
 			l++;
 		};
