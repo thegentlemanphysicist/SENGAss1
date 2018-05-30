@@ -128,11 +128,28 @@ int isWordLow(int line1, int word1,int line2, int word2){
 	/*return -ve if worda is earlier alphabetically than wordb*/
 	/*return +ve if worda is later alphabetically than wordb*/
 	/*return 0 if they are the same word */
-	return strncmp(lines2BIndexed[line1][word1], lines2BIndexed[line2][word2], MAX_LEN_OF_LINE_2B_INDEXED);
+	//Compare first by alphabetical, then by line number, then by word number
+	//This ensures repeats of the same word at different spots is not ignored
+	int returnValue = strncmp(lines2BIndexed[line1][word1], lines2BIndexed[line2][word2], MAX_LEN_OF_LINE_2B_INDEXED);
+	if (!returnValue ){
+	// reaches here iff returnValue is 0
+			if (line1 > line2){
+				returnValue = +1;
+			} else if (line1 < line2){
+				returnValue = -1;
+			} else if (word1 > word2 ) {
+				returnValue = +1;
+			} else if (word1 < word2 ){
+				returnValue = -1;
+			}
+	}
 	
+	
+//	return strncmp(lines2BIndexed[line1][word1], lines2BIndexed[line2][word2], MAX_LEN_OF_LINE_2B_INDEXED);
+	return returnValue;	
 }
 
-/*This function checks if word #k on line l is to be excluded*/	
+/*This function checks if word number 'k' on line 'l' is to be excluded*/	
 int wordExcl(int line, int word){
 	//returns 1 if excluded
 	int i = 0;	
@@ -149,6 +166,7 @@ int wordExcl(int line, int word){
 }
 
 /*Find smallest non indexed word in the array*/
+/*If line prev is -1 it means there is no previous word*/
 int * smallestWord(int linePrev, int wordPrev){
 	int i;
 	int l;
@@ -158,6 +176,7 @@ int * smallestWord(int linePrev, int wordPrev){
 	test[1] = lastWordToBeIndexed[1];/*This is the word in the line*/
 	test[2]	= 0;/*This tells us if the function has been called*/	
 
+	//This edge case is if there was no previous line?
 	if( linePrev ==-1){
 		i=0;
 		while (lines2BIndexed[i][0][0]) {
@@ -165,7 +184,13 @@ int * smallestWord(int linePrev, int wordPrev){
 			while (lines2BIndexed[i][l][0]){
 				/*Check that the word isn't excluded*/
 				/*No word indexed yet*/		
-				if (wordExcl(i, l) != 1 & isWordLow(test[0], test[1], i, l) > 0){
+				//test to figure out why rich isn't counted in test 8			
+//				printf("The linePrev was -1\n");				
+//				printf("The word being checked is: %s\n", lines2BIndexed[i][l]); 				
+								
+				
+				if ( (wordExcl(i, l) != 1) & (isWordLow(test[0], test[1], i, l) > 0) ){
+//					printf("The earliest non indexed word is: %s\n", lines2BIndexed[i][l]); 						
 					test[0] = i;
 					test[1] = l;
 					test[2] = 1;
@@ -185,13 +210,18 @@ int * smallestWord(int linePrev, int wordPrev){
 				/*Check that the word isn't excluded*/
 				/*Find the earliest word not yet indexed*/
 				/*Check that the new word is ahead of the previous one indexed*/		
-				if (wordExcl(i, l) != 1 & isWordLow(linePrev, wordPrev, i, l) < 0 & isWordLow(test[0], test[1], i, l) > 0){
-					//deal with redundant words					
-					if (   i != linePrev || l != linePrev) {					
+				
+				//test to figure out why rich isn't counted in test 8			
+//				printf("The word being checked is: %s\n", lines2BIndexed[i][l]); 				
+				
+				if (  (wordExcl(i, l) != 1) 
+				& (isWordLow(linePrev, wordPrev, i, l) < 0) 
+				& (isWordLow(test[0], test[1], i, l) > 0)  
+				){
+//					printf("The earliest non indexed word is: %s\n", lines2BIndexed[i][l]); 												
 						test[0] = i;
 						test[1] = l;
 						test[2] = 1;
-					}
 				};
 				l++;
 			};
@@ -200,7 +230,7 @@ int * smallestWord(int linePrev, int wordPrev){
 
 	}
 
-
+//	printf("THE NEXT WORD TO BE INDEXED IS : %s\n", lines2BIndexed[test[0]][test[1]]); 	
 	return test;
 }
 
@@ -269,7 +299,8 @@ int * lastWord(){
 	};
 	lastWordIndex[0]=testi;
 	lastWordIndex[1]=testl;
-	exitLoop: return lastWordIndex;
+	/*exitLoop: return lastWordIndex;*/
+	return lastWordIndex;
 
 }
 
